@@ -22,7 +22,8 @@
         "monochromeImage": "./assets/icons/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.fortstar.inventra"
     },
     "web": {
       "bundler": "metro",
@@ -43,17 +44,7 @@
       [
         "expo-sqlite",
         {
-          "enableFTS": true,
-          "useSQLCipher": true,
-          "android": {
-            "enableFTS": false,
-            "useSQLCipher": false
-          },
-          "ios": {
-            "customBuildFlags": [
-              "-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"
-            ]
-          }
+          "enableLegacyPatcherFallback": true
         }
       ],
       "expo-web-browser"

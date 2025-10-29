@@ -14,15 +14,13 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const results = await database.getAllAsync<ProductsProps>(
-        "SELECT * FROM products"
-      );
+      const results = await database.getAllAsync("SELECT * FROM products;");
       if (results) {
-        console.log("Fetched products:", results);
-        setData(results);
+        setData((results as ProductsProps[]) || []);
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.log("DB fetch error:", error);
+      setData([]);
     }
   };
 
@@ -84,7 +82,6 @@ const Products = () => {
             </Text>
           </View>
         )}
-        
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
