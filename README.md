@@ -1,50 +1,111 @@
-# Welcome to your Expo app 👋
+# 📦 Inventra
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A simple and efficient mobile inventory management app built with React Native and Expo. Manage your products, track stock levels, and organize your inventory - all offline.
 
-## Get started
+## 🚀 Demo Links
 
-1. Install dependencies
+- **🌐 Try Online:** `[Add Appetize Link Here]`
+- **📱 Download APK:** `[Add Download Link Here]`
+- **🎥 Video Demo:** `[Add Video Link Here]`
 
-   ```bash
-   npm install
-   ```
+## ✨ Features
 
-2. Start the app
+- Add, edit, and delete products
+- Capture product images with camera
+- Track quantities and prices
+- Organize by categories
+- Local SQLite database (works offline)
+- Clean, modern UI
 
-   ```bash
-   npx expo start
-   ```
+## 🛠️ Tech Stack
 
-In the output, you'll find options to open the app in a
+- React Native + Expo
+- TypeScript
+- Expo Router (Navigation)
+- Expo SQLite (Database)
+- NativeWind (Styling)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 📋 Prerequisites
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Node.js (v18+)
+- npm/yarn/pnpm
+- Git
 
-## Get a fresh project
+## 🚀 Installation
 
-When you're ready, run:
+### 1. Clone the repository
 
 ```bash
-npm run reset-project
+git clone https://github.com/fortstar09/inventra.git
+cd inventra
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Install dependencies
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Start the development server
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npx expo start
+```
 
-## Join the community
+### 4. Run the app
 
-Join our community of developers creating universal apps.
+- Press `a` for Android emulator
+- Press `i` for iOS simulator (macOS only)
+- Scan QR code with Expo Go app on your device
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📦 Build for Production
+
+### Install EAS CLI
+
+```bash
+npm install -g eas-cli
+eas login
+```
+
+### Build Android APK
+
+```bash
+# Preview build
+eas build --platform android --profile preview
+
+# Production build
+eas build --platform android --profile production
+```
+
+### Build iOS (macOS only)
+
+```bash
+eas build --platform ios --profile production
+```
+
+## 🐛 Troubleshooting
+
+**Clear cache:**
+```bash
+npx expo start -c
+```
+
+**Reinstall dependencies:**
+```bash
+rm -rf node_modules
+npm install
+```
+
+## 👨‍💻 Author
+
+**Your Name**
+- GitHub: [@yourusername](https://github.com/yourusername)
+- Email: your.email@example.com
+
+## 📝 License
+
+MIT License
+
+---
+
+⭐ Star this repo if you find it helpful!
