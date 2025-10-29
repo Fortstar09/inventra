@@ -12,9 +12,11 @@ const Products = () => {
 
   const database = useSQLiteContext();
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
-      const results = await database.getAllAsync("SELECT * FROM products;");
+      const results = await database.getAllAsync(
+        "SELECT * FROM products ORDER BY createdAt DESC"
+      );
       if (results) {
         setData((results as ProductsProps[]) || []);
       }
@@ -22,22 +24,27 @@ const Products = () => {
       console.log("DB fetch error:", error);
       setData([]);
     }
-  };
+  }, [database]);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchProducts();
-    }, [])
-  );
+useFocusEffect(
+  useCallback(() => {
+    fetchProducts();
+    
+    return () => {
+      // Cleanup
+    };
+  }, [fetchProducts])
+);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await database.runAsync("DELETE FROM products WHERE id = ?;", [id]);
-      fetchProducts(); // Refresh the list after deletion
-    } catch (error) {
-      console.error("Error deleting product:", error);
-    }
-  };
+ const handleDelete = async (id: string) => {
+  try {
+    await database.runAsync("DELETE FROM products WHERE id = ?;", [id]);
+    // Update state directly instead of refetching
+    setData(prev => prev.filter(item => item.id !== id));
+  } catch (error) {
+    console.error("Error deleting product:", error);
+  }
+};
 
   return (
     <SafeAreaView className="flex-1 bg-white">

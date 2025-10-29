@@ -6,12 +6,12 @@ import { useSQLiteContext } from "expo-sqlite";
 import { Trash2 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-    Image,
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -44,7 +44,7 @@ const ProductDetails = () => {
     try {
       await database.runAsync("DELETE FROM products WHERE id = ?;", [id]);
       setShowModal(false);
-      router.push("/home");
+      router.replace("/home");
     } catch (error) {
       console.error("Error deleting product:", error);
     }

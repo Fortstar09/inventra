@@ -48,7 +48,7 @@ export default function Index() {
             <View className="mt-14 w-full justify-center items-center gap-5">
               <CustomButton
                 title="Get Started with Inventra"
-                handlePress={() => router.push("/home")}
+                handlePress={() => router.replace("/home")}
               />
             </View>
           </View>

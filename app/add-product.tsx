@@ -6,7 +6,7 @@ import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { Camera, Images, Plus } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -40,18 +40,22 @@ const AddProduct = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [edit, setEdit] = useState(false);
   const [loading, setLoading] = useState(false);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (id) {
+    let isMounted = true;
+
+    if (id && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       setEdit(true);
-      // Fetch product details from the database using the id
+
       const fetchProductDetails = async () => {
         try {
           const results = await database.getAllAsync<any>(
-            "SELECT * FROM products WHERE id = ?",
-            [parseInt(id as string)]
+            "SELECT * FROM products WHERE id = ? LIMIT 1",
+            [id as string]
           );
-          if (results && results.length > 0) {
+          if (results && results.length > 0 && isMounted) {
             const product = results[0];
             setProductDetails({
               image1: product.image
@@ -69,7 +73,11 @@ const AddProduct = () => {
       };
       fetchProductDetails();
     }
-  }, [id]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, database]);
 
   const handleChange = (field: string, value: string) => {
     setProductDetails((prev) => ({ ...prev, [field]: value }));
@@ -93,22 +101,12 @@ const AddProduct = () => {
         ]
       );
       Alert.alert("Success", "Product updated successfully!");
-      setLoading(false);
-      router.back();
+      router.replace("/home");
     } catch (error) {
       console.error("Error updating product:", error);
       Alert.alert("Error", "Failed to update product");
-      setLoading(false);
     } finally {
       setLoading(false);
-
-      setProductDetails({
-        image1: null,
-        name: "",
-        quantity: "",
-        price: "",
-        cat: "",
-      });
     }
   };
 
@@ -204,20 +202,13 @@ const AddProduct = () => {
 
       Alert.alert("Let's gooo", "Product saved successfully!");
       setLoading(false);
-      router.back();
+      router.replace("/home")
     } catch (error) {
       console.error("Error saving product:", error);
       Alert.alert("Oh no!", "Failed to save product");
       setLoading(false);
     } finally {
       setLoading(false);
-      setProductDetails({
-        image1: null,
-        name: "",
-        quantity: "",
-        price: "",
-        cat: "",
-      });
     }
   };
 
@@ -292,7 +283,7 @@ const AddProduct = () => {
             <View className="mx-6">
               <CustomButton
                 title={edit ? "Update Product" : "Add Product"}
-                handlePress={edit ? handleUpdate :  handleContinue}
+                handlePress={edit ? handleUpdate : handleContinue}
                 containerStyles="mt-[30px] mb-[100px] w-full"
                 isLoading={loading}
               />

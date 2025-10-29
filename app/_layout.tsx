@@ -7,8 +7,34 @@ import "./global.css";
 
 SplashScreen.preventAutoHideAsync();
 
-
   let dbInitialized = false;
+
+// Separate AppLayout component for Stack navigation
+const AppLayout = () => {
+  return (
+    <>
+      <StatusBar hidden={false} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          freezeOnBlur: true,
+          animation: 'slide_from_right',
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen 
+          name="home" 
+          options={{ 
+            gestureEnabled: false,
+          }} 
+        />
+        <Stack.Screen name="add-product" />
+        <Stack.Screen name="products" />
+        <Stack.Screen name="product/[id]" />
+      </Stack>
+    </>
+  );
+};
 
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
@@ -22,14 +48,22 @@ const RootLayout = () => {
   });
 
   const createDbIfNeeded = async (db: SQLiteDatabase) => {
-
     if (dbInitialized) return;
-    dbInitialized = true;
-    try {
-      console.log("🔧 Initializing database...");
 
-      // Add a small delay to ensure native modules are ready
-      await new Promise(resolve => setTimeout(resolve, 100));
+    try {
+      // Check if table already exists
+      const result = await db.getFirstAsync(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='products'"
+      );
+
+      if (result) {
+        console.log("✅ Database already initialized");
+        dbInitialized = true;
+        return;
+      }
+
+      dbInitialized = true;
+      console.log("🔧 Initializing database...");
 
       await db.execAsync(`
         CREATE TABLE IF NOT EXISTS products (
@@ -46,6 +80,7 @@ const RootLayout = () => {
       console.log("✅ Database initialized successfully");
     } catch (error) {
       console.error("❌ Database initialization error:", error);
+      dbInitialized = false;
     }
   };
 
@@ -67,14 +102,7 @@ const RootLayout = () => {
 
   return (
     <SQLiteProvider databaseName="inventra.db" onInit={createDbIfNeeded}>
-      <StatusBar hidden={false} />
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="home" options={{ headerShown: false }} />
-        <Stack.Screen name="add-product" options={{ headerShown: false }} />
-        <Stack.Screen name="products" options={{ headerShown: false }} />
-        <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
-      </Stack>
+      <AppLayout />
     </SQLiteProvider>
   );
 };

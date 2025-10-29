@@ -20,30 +20,33 @@ const Home = () => {
 
   const database = useSQLiteContext();
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const results = await database.getAllAsync<ProductsProps>(
-        "SELECT * FROM products"
+        "SELECT * FROM products ORDER BY createdAt DESC LIMIT 50"
       );
       if (results) {
-        console.log("Fetched products:", results);
+        console.log("Fetched products:", results.length);
         setData(results);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
     }
-  };
-
+  }, [database]); 
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
-    }, [])
+
+      return () => {
+     
+      };
+    }, [fetchProducts])
   );
 
   const handleDelete = async (id: string) => {
     try {
       await database.runAsync("DELETE FROM products WHERE id = ?;", [id]);
-      fetchProducts(); // Refresh the list after deletion
+      setData(prev => prev.filter(item => item.id !== id));
     } catch (error) {
       console.error("Error deleting product:", error);
     }
