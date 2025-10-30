@@ -4,7 +4,7 @@ A simple and efficient mobile inventory management app built with React Native a
 
 ## 🚀 Demo Links
 
-- **🌐 Try Online:** [Play App](https://appetize.io/app/b_ao2wchsvhi66tupcqa67sxy54i)
+- **🌐 Try Online:** [Play App](https://appetize.io/app/b_4iwikvuqzkngcd5nerqu7vhohu)
 - **📱 Download APK:** [Download Apk](https://expo.dev/artifacts/eas/44weeXXtPkwwum749UaFJe.apk)
 - **🎥 Video Demo:** [Watch Here](https://drive.google.com/drive/folders/1vcnyll7G0sY2okrdVE6Bmja9hSHklN8J)
 
