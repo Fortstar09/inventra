@@ -1,8 +1,8 @@
 import CustomButton from "@/components/CustomButton";
 import StatusBar from "@/components/StatusBar";
+import { initDb } from "@/lib/database";
 import { formatPriceNaira, formatRelativeDate } from "@/lib/utils";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
 import { Trash2 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
@@ -17,15 +17,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const ProductDetails = () => {
   const { id } = useLocalSearchParams();
-  const [productDetail, setProductDetail] = useState<ProductsProps | null>(null);
+  const [productDetail, setProductDetail] = useState<ProductsProps | null>(
+    null
+  );
   const [showModal, setShowModal] = useState(false);
-  const database = useSQLiteContext();
 
   useEffect(() => {
     if (id) {
       const fetchProductDetails = async () => {
         try {
-          const results = await database.getAllAsync<any>(
+          const db = await initDb();
+
+          const results = await db.getAllAsync<any>(
             "SELECT * FROM products WHERE id = ?",
             [id as string]
           );
@@ -38,11 +41,13 @@ const ProductDetails = () => {
       };
       fetchProductDetails();
     }
-  }, [id, database]);
+  }, [id]);
 
   const handleDelete = async (id: string) => {
     try {
-      await database.runAsync("DELETE FROM products WHERE id = ?;", [id]);
+      const db = await initDb();
+
+      await db.runAsync("DELETE FROM products WHERE id = ?;", [id]);
       setShowModal(false);
       router.replace("/home");
     } catch (error) {
@@ -57,17 +62,17 @@ const ProductDetails = () => {
         <ScrollView className="bg-secondary h-full">
           <View className="mx-5 my-6 flex-row items-start justify-between">
             {productDetail?.image ? (
-              <Image
-                source={{ uri: productDetail.image }}
-                className="rounded-xl bg-white"
-                style={{ width: "60%", height: 250 }}
-                resizeMode="cover"
-              />
+                <Image
+                  source={{ uri: productDetail.image }}
+                  className="rounded-xl bg-white border border-[#efefef]"
+                  style={{ width: "70%", height: 250 }}
+                  resizeMode="cover"
+                />
             ) : (
               <View
                 className="rounded-xl bg-white"
                 style={{
-                  width: "49%",
+                  width: "70%",
                   height: 250,
                   justifyContent: "center",
                   alignItems: "center",
@@ -143,7 +148,7 @@ const ProductDetails = () => {
 
           <TouchableOpacity
             className="items-center justify-center flex-row min-h-14 py-3 gap-3 rounded-[12px] w-full bg-red-600 flex-auto"
-            onPress={() => setShowModal(true)} 
+            onPress={() => setShowModal(true)}
           >
             <Trash2 color="#ffffff" strokeWidth={1.5} size={24} />
             <Text className="text-xl font-brimedium text-white">Delete</Text>
@@ -163,8 +168,8 @@ const ProductDetails = () => {
                 Delete this product?
               </Text>
               <Text className="text-gray-500 text-center mb-6">
-                Are you sure you want to delete “{productDetail?.name}”? {"\n"}This
-                action cannot be undone.
+                Are you sure you want to delete “{productDetail?.name}”? {"\n"}
+                This action cannot be undone.
               </Text>
 
               <View className="flex-row justify-between mt-6">

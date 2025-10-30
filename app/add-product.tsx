@@ -1,12 +1,12 @@
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
 import StatusBar from "@/components/StatusBar";
+import { initDb } from "@/lib/database";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
 import { Camera, Images, Plus } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -21,8 +21,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const AddProduct = () => {
-  const { id } = useLocalSearchParams();
-  const database = useSQLiteContext();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [productDetails, setProductDetails] = useState<{
     image1: ImagePicker.ImagePickerAsset | null;
     name: string;
@@ -40,44 +39,39 @@ const AddProduct = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [edit, setEdit] = useState(false);
   const [loading, setLoading] = useState(false);
-  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    let isMounted = true;
-
-    if (id && !hasFetchedRef.current) {
-      hasFetchedRef.current = true;
+    if (id) {
       setEdit(true);
-
-      const fetchProductDetails = async () => {
-        try {
-          const results = await database.getAllAsync<any>(
-            "SELECT * FROM products WHERE id = ? LIMIT 1",
-            [id as string]
-          );
-          if (results && results.length > 0 && isMounted) {
-            const product = results[0];
-            setProductDetails({
-              image1: product.image
-                ? { uri: product.image, width: 0, height: 0, type: "image" }
-                : null,
-              name: product.name,
-              quantity: product.quantity,
-              price: product.price,
-              cat: product.category,
-            });
-          }
-        } catch (error) {
-          console.error("Error fetching product details:", error);
-        }
-      };
-      fetchProductDetails();
     }
 
-    return () => {
-      isMounted = false;
+    const fetchProductDetails = async () => {
+      try {
+        const db = await initDb();
+        const results = await db.getAllAsync<any>(
+          "SELECT * FROM products WHERE id = ? LIMIT 1",
+          [id as string]
+        );
+        if (results && results.length > 0) {
+          const product = results[0];
+          setProductDetails({
+            image1: product.image
+              ? { uri: product.image, width: 0, height: 0, type: "image" }
+              : null,
+            name: product.name,
+            quantity: product.quantity,
+            price: product.price,
+            cat: product.category,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+      }
     };
-  }, [id, database]);
+    if (id) {
+      fetchProductDetails();
+    }
+  }, [id]);
 
   const handleChange = (field: string, value: string) => {
     setProductDetails((prev) => ({ ...prev, [field]: value }));
@@ -85,11 +79,12 @@ const AddProduct = () => {
 
   const handleUpdate = async () => {
     try {
+      const db = await initDb();
       setLoading(true);
       const permanentImagePath = productDetails.image1
         ? await saveImagePermanently(productDetails.image1.uri)
         : null;
-      await database.runAsync(
+      await db.runAsync(
         `UPDATE products SET name = ?, quantity = ?, price = ?, category = ?, image = ? WHERE id = ?`,
         [
           productDetails.name.trim(),
@@ -100,6 +95,7 @@ const AddProduct = () => {
           id,
         ]
       );
+      setEdit(false);
       Alert.alert("Success", "Product updated successfully!");
       router.replace("/home");
     } catch (error) {
@@ -171,6 +167,7 @@ const AddProduct = () => {
     }
 
     try {
+      const db = await initDb();
       setLoading(true);
       const permanentImagePath = await saveImagePermanently(
         productDetails.image1.uri
@@ -186,7 +183,9 @@ const AddProduct = () => {
         createdAt: new Date().toISOString(),
       };
 
-      await database.runAsync(
+      console.log("New Product:", newProduct);
+
+      await db.runAsync(
         `INSERT INTO products (id, name, quantity, price, category, image, createdAt)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
@@ -202,7 +201,7 @@ const AddProduct = () => {
 
       Alert.alert("Let's gooo", "Product saved successfully!");
       setLoading(false);
-      router.replace("/home")
+      router.replace("/home");
     } catch (error) {
       console.error("Error saving product:", error);
       Alert.alert("Oh no!", "Failed to save product");

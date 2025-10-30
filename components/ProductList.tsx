@@ -65,7 +65,7 @@ const ProductList: React.FC<ProductListProps> = ({
         </View>
       </View>
       {drop && (
-        <View className="absolute top-12 w-fit h-fit z-10 right-0 px-4 bg-white border-gray-100 border  rounded-xl shadow-lg ">
+        <View className="absolute  top-12 w-fit h-fit z-20 right-0 px-4 bg-white border-gray-100 border  rounded-xl shadow-lg ">
           <TouchableOpacity
             className="bg-white border-b border-gray-100"
             onPress={() => {

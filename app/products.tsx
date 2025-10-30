@@ -1,50 +1,46 @@
 import ProductList from "@/components/ProductList";
 import StatusBar from "@/components/StatusBar";
 import { icons } from "@/constants";
-import { router, useFocusEffect } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
-import React, { useCallback, useState } from "react";
+import { initDb } from "@/lib/database";
+import { router } from "expo-router";
+// import { useSQLiteContext } from "expo-sqlite";
+import React, { useEffect, useState } from "react";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Products = () => {
   const [data, setData] = useState<ProductsProps[]>([]);
 
-  const database = useSQLiteContext();
-
-  const fetchProducts = useCallback(async () => {
-    try {
-      const results = await database.getAllAsync(
-        "SELECT * FROM products ORDER BY createdAt DESC"
-      );
-      if (results) {
-        setData((results as ProductsProps[]) || []);
+  useEffect(() => {
+    // Fetch products from the database and set state
+    const fetchProducts = async () => {
+      try {
+        const db = await initDb();
+        const results = await db.getAllAsync<ProductsProps>(
+          "SELECT * FROM products ORDER BY createdAt DESC LIMIT 50"
+        );
+        if (results) {
+          console.log("Fetched products:", results);
+          setData(results);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
       }
-    } catch (error) {
-      console.log("DB fetch error:", error);
-      setData([]);
-    }
-  }, [database]);
-
-useFocusEffect(
-  useCallback(() => {
-    fetchProducts();
-    
-    return () => {
-      // Cleanup
     };
-  }, [fetchProducts])
-);
+    fetchProducts();
+  }, [data.length]);
 
- const handleDelete = async (id: string) => {
-  try {
-    await database.runAsync("DELETE FROM products WHERE id = ?;", [id]);
-    // Update state directly instead of refetching
-    setData(prev => prev.filter(item => item.id !== id));
-  } catch (error) {
-    console.error("Error deleting product:", error);
-  }
-};
+  const handleDelete = async (id: string) => {
+    try {
+      const db = await initDb();
+
+      await db.runAsync("DELETE FROM products WHERE id = ?;", [id]);
+      // Update state directly instead of refetching
+      setData((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">

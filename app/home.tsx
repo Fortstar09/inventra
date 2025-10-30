@@ -3,9 +3,9 @@ import store from "@/assets/icons/store.png";
 import CustomTabBar from "@/components/CustomTabBar";
 import ProductList from "@/components/ProductList";
 import { icons } from "@/constants";
-import { router, useFocusEffect } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
-import React, { useCallback, useState } from "react";
+import { initDb } from "@/lib/database";
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -18,35 +18,30 @@ const features = [
 const Home = () => {
   const [data, setData] = useState<ProductsProps[]>([]);
 
-  const database = useSQLiteContext();
-
-  const fetchProducts = useCallback(async () => {
-    try {
-      const results = await database.getAllAsync<ProductsProps>(
-        "SELECT * FROM products ORDER BY createdAt DESC LIMIT 50"
-      );
-      if (results) {
-        console.log("Fetched products:", results.length);
-        setData(results);
+  useEffect(() => {
+    // Fetch products from the database and set state
+    const fetchProducts = async () => {
+      try {
+        const db = await initDb();
+        const results = await db.getAllAsync<ProductsProps>(
+          "SELECT * FROM products ORDER BY createdAt DESC LIMIT 50"
+        );
+        if (results) {
+          console.log("Fetched products:", results);
+          setData(results);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
       }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-  }, [database]); 
-  useFocusEffect(
-    useCallback(() => {
-      fetchProducts();
-
-      return () => {
-     
-      };
-    }, [fetchProducts])
-  );
+    };
+    fetchProducts();
+  }, [data.length]);
 
   const handleDelete = async (id: string) => {
     try {
-      await database.runAsync("DELETE FROM products WHERE id = ?;", [id]);
-      setData(prev => prev.filter(item => item.id !== id));
+      const db = await initDb();
+      await db.runAsync("DELETE FROM products WHERE id = ?;", [id]);
+      setData((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting product:", error);
     }
@@ -66,7 +61,7 @@ const Home = () => {
             Inventra
           </Text>
         </View>
-        <Text className="text-gray-600 text-xl font-brisemibola">
+        <Text className="text-gray-600 text-xl font-brisemibold">
           Hello, there 👋🏼
         </Text>
         <Text className="text-gray-500 text-base font-briregular my-2">
