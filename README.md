@@ -99,8 +99,8 @@ npm install
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+- GitHub: [@fortstar09](https://github.com/fortstar09/inventra)
+- Email: ogunyafort@gmail.com
 
 ## 📝 License
 
